@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/claude/Documents/event_cam/FilterOpticalFlow/EstimateVelocity.cpp
+EstimateVelocity.h
+/home/claude/Documents/event_cam/FilterOpticalFlow/EstimateVelocity.h
+
+/home/claude/Documents/event_cam/FilterOpticalFlow/EstimateVelocity.h
+eigen3/Eigen/Dense
+-
+tuple
+-
+iostream
+-
+
+/home/claude/Documents/event_cam/FilterOpticalFlow/main.cpp
+iostream
+-
+EstimateVelocity.h
+/home/claude/Documents/event_cam/FilterOpticalFlow/EstimateVelocity.h
+
