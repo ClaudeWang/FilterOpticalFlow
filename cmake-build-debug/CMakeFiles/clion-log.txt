@@ -1,4 +1,4 @@
-/home/claude/Downloads/clion/clion-2018.1.1/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/claude/Documents/event_cam/FilterOpticalFlow
+/home/haumin/clion-2018.1.1/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/haumin/Documents/EventCamera/FilterOpticalFlow
 -- The C compiler identification is GNU 5.4.0
 -- The CXX compiler identification is GNU 5.4.0
 -- Check for working C compiler: /usr/bin/cc
@@ -15,4 +15,4 @@
 -- Detecting CXX compile features - done
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/claude/Documents/event_cam/FilterOpticalFlow
+-- Build files have been written to: /home/haumin/Documents/EventCamera/FilterOpticalFlow/cmake-build-debug

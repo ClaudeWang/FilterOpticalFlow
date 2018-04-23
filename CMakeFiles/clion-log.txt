@@ -1,0 +1,4 @@
+Cannot generate into /home/haumin/Documents/EventCamera/FilterOpticalFlow
+It is already used for project /home/claude/Documents/event_cam/FilterOpticalFlow
+
+Please either delete it manually or select another generation directory
