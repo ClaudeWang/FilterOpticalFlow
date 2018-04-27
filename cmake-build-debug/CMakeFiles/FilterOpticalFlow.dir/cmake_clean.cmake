@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/FilterOpticalFlow.dir/main.cpp.o"
   "CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o"
+  "CMakeFiles/FilterOpticalFlow.dir/main.cpp.o"
   "FilterOpticalFlow.pdb"
   "FilterOpticalFlow"
 )
