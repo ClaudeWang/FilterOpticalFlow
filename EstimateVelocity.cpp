@@ -1,18 +1,28 @@
 //
-// Created by claude on 4/21/18.
+// Created by Haumin Zhu on 4/23/18.
 //
 
 #include "EstimateVelocity.h"
 
-MatrixXf EstimateVelocity::velocityFromFlow(MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position) {
-
+std::tuple<MatrixXf, MatrixXf, MatrixXf> EstimateVelocity::velocityFromFlow(MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position) {
+    /**
+     * INPUT:
+     * - flow: Nx2 matrix for optical flow
+     * - K: 3x3 calibration matrix for camera
+     * - depth: Nx1 matrix for depth
+     * - position: Nx2 matrix for position
+     * OUTPUT:
+     * - X: 6x1 velocity matrix
+     * - A: 2N x 6 matrix
+     * - b: 2N x 1 matrix
+     */
     // convert coordinates into ideal coordinates.
     int num_pts = position.rows();
 
     MatrixXf h_pts(3, num_pts);
     MatrixXf new_pos(num_pts, 2);
     h_pts.block(0, 0, 2, num_pts) = position.transpose().block(0, 0, 2, num_pts);
-    h_pts.block(2, 0, 1, num_pts) =  MatrixXf::Ones(1, num_pts).block(0, 0, 1, num_pts);
+    h_pts.block(2, 0, 1, num_pts) = MatrixXf::Ones(1, num_pts).block(0, 0, 1, num_pts);
     h_pts = K.inverse() * h_pts;
     h_pts = h_pts.array().rowwise() / h_pts.row(2).array();
 
@@ -62,7 +72,93 @@ MatrixXf EstimateVelocity::velocityFromFlow(MatrixXf flow, MatrixXf K, MatrixXf 
     ColPivHouseholderQR<MatrixXf> dec(A);
     X.col(0) = dec.solve(b);
 
-    std::cout << (clock() - start) / double(CLOCKS_PER_SEC) << std::endl;
+//    std::cout << (clock() - start) / double(CLOCKS_PER_SEC) << std::endl;
+//    std::cout << X << std::endl;
 
-    return X;
+    return std::make_tuple(X, A, b);
+}
+
+std::vector<int> EstimateVelocity::RANSAC(int iterations, float threshold, MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position) {
+    /**
+     * INPUT:
+     * - iterations: number of iterations the RANSAC will take
+     * - threshold: threshold for rejecting outliers
+     * - flow: Nx2 matrix for optical flow
+     * - K: 3x3 calibration matrix for camera
+     * - depth: Nx1 matrix for depth
+     * - position: Nx2 matrix for position
+     */
+    int num_pts = position.rows();
+    int num_rand_pts = 3;
+    int max_inlier = -1;
+    std::vector<int> result;
+
+    MatrixXf X, A, b; // X is not used
+    std::tie(X, A, b) = velocityFromFlow(flow, K, depth, position);
+
+    // RANSAC
+    for(int i = 0; i < iterations; i ++){
+        // randomly select points
+        std::set<int> rand_idx = generateRandomNum(num_rand_pts, num_pts);
+        std::set<int>::iterator iterator;
+
+        MatrixXf select_postition, select_flow, select_depth;
+        select_postition = MatrixXf::Zero(num_rand_pts, 2);
+        select_flow = MatrixXf::Zero(num_rand_pts, 2);
+        select_depth = MatrixXf::Zero(num_rand_pts, 1);
+
+        int c = 0;
+        for(iterator = rand_idx.begin(); iterator != rand_idx.end() && c < num_rand_pts; iterator++){
+            int idx = *iterator;
+            select_postition.row(c) = position.row(idx);
+            select_flow.row(c) = flow.row(idx);
+            select_depth.row(c) = depth.row(idx);
+            c ++;
+        }
+
+        MatrixXf vel, A_rand, b_rand;
+        std::tie(vel, A_rand, b_rand) = velocityFromFlow(select_flow, K, select_depth, select_postition);
+
+        MatrixXf diff = A * vel - b;
+        MatrixXf x_diff, y_diff;
+        x_diff = MatrixXf::Zero(num_pts, 1);
+        y_diff = MatrixXf::Zero(num_pts, 1);
+        x_diff.block(0, 0, num_pts, 1) = diff.block(0, 0, num_pts, 1);
+        y_diff.block(0, 0, num_pts, 1) = diff.block(num_pts, 0, num_pts, 1);
+
+        int count = 0;
+        std::vector<int> result_tmp;
+        for(int j = 0; j < num_pts; j ++){
+            double candidate = sqrt(pow(x_diff(j, 0), 2.0) + pow(y_diff(j, 0), 2.0));
+            if(candidate < threshold){
+                count ++;
+                result_tmp.push_back(j);
+            }
+        }
+        if(count > max_inlier){
+            max_inlier = count;
+            result = result_tmp;
+            if(max_inlier > (num_pts * 0.95)){
+                break;
+            };
+        }
+        std::cout << "Iteration: "<< i << " inliers number: " << count << std::endl;
+    }
+
+    return result;
+
+}
+
+std::set<int> EstimateVelocity::generateRandomNum(int num_pts, int range){
+    /**
+     * num: number of random integer
+     * range: range of random number (upper bound)
+     */
+    std::set<int> output;
+    srand((unsigned) time(NULL));
+    while(output.size() < num_pts){
+        int number = rand() % range;
+        output.insert(number);
+    }
+    return output;
 }

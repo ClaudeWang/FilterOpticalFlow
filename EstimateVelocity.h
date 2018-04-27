@@ -8,6 +8,12 @@
 #include <eigen3/Eigen/Dense>
 #include <tuple>
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>
+#include <set>
+#include <tuple>
+#include <vector>
+#include <math.h>
 
 using namespace Eigen;
 
@@ -21,8 +27,9 @@ public:
     ~EstimateVelocity() {
     }
 
-    MatrixXf velocityFromFlow(MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position);
-
+    std::tuple<MatrixXf, MatrixXf, MatrixXf> velocityFromFlow(MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position);
+    std::vector<int> RANSAC(int iterations, float threshold, MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position);
+    std::set<int> generateRandomNum(int num, int range);
 };
 
 
