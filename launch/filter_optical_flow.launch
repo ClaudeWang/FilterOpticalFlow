@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="iso-8859-15"?>
+
+<launch>
+	<arg name="launch-prefix" default=""/>
+	<arg name="n_events_per_window" default="20000"/>
+	<arg name="tracker_window_size" default="31"/>
+	<arg name="stereo_window_size" default="24"/>
+	<arg name="min_disparity" default="0"/>
+	<arg name="disparity_range" default="32"/>
+	<arg name="do_parallel" default="true"/>
+	<arg name="do_plot" default="false"/>
+	<arg name="realtime" default="false"/>
+
+	<!--arg name="bag_folder_path" default="/mnt/data/mvsec/merge_bags/final/sep5/"/-->
+	<!-- <arg name="bag_folder_path" default="/mnt/data/mvsec_data/indoor_flying/"/> -->
+	<arg name="bag_folder_path" default="/home/yibo/Documents/research/bagfiles"/>
+	<arg name="sequence" default="indoor_flying"/>
+	<arg name="calibration_file" default="$(arg bag_folder_path)/camchain-imucam-$(arg sequence).yaml"/>
+	<!--arg name="calibration_file" default="$(find event_based_stereo)/calib/camchain-imucam-346quad.yaml"/-->
+
+	<node name="filter_optical_flow" pkg="filter_optical_flow" type="filter_optical_flow" output="screen" required="true" launch-prefix="$(arg launch-prefix)">
+	<rosparam command="load" file="$(arg calibration_file)"/>
+	<remap from="feature_pos" to="/image_processor/features"/>
+	</node>
+
+	<node pkg="event_based_stereo" type="event_based_stereo_node.py" name="stereo_tensorflow" required="true" output="screen">
+	<param name="n_events_per_window" type="int" value="$(arg n_events_per_window)"/>
+	<param name="disparity_range" type="int" value="$(arg disparity_range)"/>
+	<param name="patch_size" type="int" value="$(arg stereo_window_size)"/>
+	<param name="min_disparity" type="int" value="$(arg min_disparity)"/>
+	<param name="bag_folder_path" type="str" value="$(arg bag_folder_path)"/>
+	<param name="sequence" type="str" value="$(arg sequence)"/>
+
+	<remap from="disparity_image" to="/davis/disparity"/>
+	<remap from="event_stereo_disparity_request" to="/davis/event_stereo_disparity_request"/>
+	</node>
+
+	<node pkg="nodelet" type="nodelet" name="image_processor"
+		args="standalone msckf_vio/ImageProcessorNodelet"
+		output="screen" required="true" launch-prefix="">
+	    <rosparam command="load" file="$(arg calibration_file)"/>
+	    <param name="grid_row" value="5"/>
+	    <param name="grid_col" value="7"/>
+	    <param name="grid_min_feature_num" value="2"/>
+	    <param name="grid_max_feature_num" value="2"/>
+	    <param name="pyramid_levels" value="1"/>
+	    <param name="window_size" value="21"/>
+	    <param name="fast_threshold" value="10"/>
+	    <param name="max_iteration" value="30"/>
+	    <param name="track_precision" value="0.01"/>
+	    <param name="ransac_threshold" value="2"/>
+	    <param name="stereo_threshold" value="5"/>
+
+	    <param name="realtime" type="bool" value="$(arg realtime)"/>
+	    <param name="n_events_per_window" type="int" value="$(arg n_events_per_window)"/>
+	    <param name="tracker_window_size" type="int" value="$(arg tracker_window_size)"/>
+	    <param name="do_plot" type="bool" value="$(arg do_plot)"/>
+	    <param name="do_parallel" type="bool" value="$(arg do_parallel)"/>
+	    
+	    <param name="tracker_max_distance" type="double" value="1."/>
+	    <param name="tracker_sigma" type="double" value="2.0"/>
+	    <param name="tracker_em1_max_iters" type="int" value="60"/>
+	    <param name="tracker_em1_min_err" type="double" value="0.1"/>
+	    <param name="tracker_em2_max_iters" type="int" value="40"/>
+	    <param name="tracker_em2_min_err" type="double" value="0.2"/>
+	    <param name="pixel_discretization" type="double" value="2.0"/>
+
+	    <remap from="~left/events" to="/davis/left/events"/>
+	    <remap from="~right/events" to="/davis/right/events"/>
+	    <remap from="~disparity_image" to="/davis/disparity_image"/>
+	    <remap from="~imu" to="/davis/left/imu"/>
+	    <remap from="~cam0_image" to="/deblurred_image"/>
+	    <remap from="~cam1_image" to="/right_image"/>
+	    <remap from="~disparity_image" to="/davis/disparity"/>
+	    <remap from="~event_stereo_disparity_request" to="/davis/event_stereo_disparity_request"/>
+	    <remap from="~odom" to="/vio/odom"/>
+	    <remap from="~pose" to="/davis/left/odometry"/>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="vio"
+	args='standalone msckf_vio/MsckfVioNodelet'
+	output="screen" required="true">
+    <rosparam command="load" file="$(arg calibration_file)"/>
+
+    <param name="realtime" type="bool" value="$(arg realtime)"/>
+    
+    <param name="publish_tf" value="true"/>
+    <param name="frame_rate" value="20"/>
+    <param name="fixed_frame_id" value="map"/>
+    <param name="child_frame_id" value="odom"/>
+    <param name="max_cam_state_size" value="20"/>
+    <param name="position_std_threshold" value="8.0"/>
+
+    <param name="rotation_threshold" value="0.2618"/>
+    <param name="translation_threshold" value="0.1"/>
+    <param name="tracking_rate_threshold" value="0.5"/>
+
+    <param name="feature/config/translation_threshold" value="-1.0"/>
+
+    <param name="noise/gyro" value="0.1"/>
+    <param name="noise/acc" value="0.3"/>
+    <param name="noise/gyro_bias" value="0.005"/>
+    <param name="noise/acc_bias" value="0.05"/>
+    <param name="noise/feature" value="0.03"/>
+
+    <param name="initial_state/velocity/x" value="0.0"/>
+    <param name="initial_state/velocity/y" value="0.0"/>
+    <param name="initial_state/velocity/z" value="0.0"/>
+
+    <param name="initial_covariance/velocity" value="0.25"/>
+    <param name="initial_covariance/gyro_bias" value="0.0001"/>
+    <param name="initial_covariance/acc_bias" value="0.01"/>
+    <param name="initial_covariance/extrinsic_rotation_cov" value="3.0462e-4"/>
+    <param name="initial_covariance/extrinsic_translation_cov" value="2.5e-5"/>
+
+    <remap from="~mocap_pose" to="/davis/left/pose"/>
+    <remap from="~imu" to="/davis/left/imu"/>
+    <remap from="~features" to="image_processor/features"/>
+  </node>
+
+</launch>
