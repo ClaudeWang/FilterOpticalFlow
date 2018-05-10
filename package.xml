@@ -2,15 +2,15 @@
 
 <package format="2">
 
-	<name>filter_optical_flow</name>	
-	<version>0.0.1</version>
-	<description>
-		This package estimate pose and through optical flow
-	</description>
-	<maintainer email="yibochen@seas.upenn.edu">Yibo Chen</maintainer>
-	<license>TODO</license>
+  <name>filter_optical_flow</name>	
+  <version>0.0.1</version>
+  <description>
+	This package estimate pose and through optical flow
+  </description>
+  <maintainer email="yibochen@seas.upenn.edu">Yibo Chen</maintainer>
+  <license>TODO</license>
 
-	<buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>catkin</buildtool_depend>
 
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
