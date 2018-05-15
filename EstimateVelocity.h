@@ -14,6 +14,8 @@
 #include <tuple>
 #include <vector>
 #include <math.h>
+#include <fstream>
+#include <iomanip>
 
 using namespace Eigen;
 
@@ -28,7 +30,7 @@ public:
     }
 
     std::tuple<MatrixXf, MatrixXf, MatrixXf> velocityFromFlow(MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position);
-    std::vector<int> RANSAC(int iterations, float threshold, MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position);
+    MatrixXf RANSAC(int iterations, float threshold, MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position);
     std::set<int> generateRandomNum(int num, int range);
 };
 

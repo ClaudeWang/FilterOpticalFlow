@@ -23,6 +23,8 @@ std::tuple<MatrixXf, MatrixXf, MatrixXf> EstimateVelocity::velocityFromFlow(Matr
     MatrixXf new_pos(num_pts, 2);
     h_pts.block(0, 0, 2, num_pts) = position.transpose().block(0, 0, 2, num_pts);
     h_pts.block(2, 0, 1, num_pts) = MatrixXf::Ones(1, num_pts).block(0, 0, 1, num_pts);
+//    std::cout << "Col 1: " << h_pts.row(0) << std::endl <<"Col 2: " << std::endl << h_pts.row(1)<< std::endl;
+
     h_pts = K.inverse() * h_pts;
     h_pts = h_pts.array().rowwise() / h_pts.row(2).array();
 
@@ -30,8 +32,8 @@ std::tuple<MatrixXf, MatrixXf, MatrixXf> EstimateVelocity::velocityFromFlow(Matr
     new_pos = h_pts.transpose().block(0, 0, num_pts, 2);
 
     // convert the flow into ideal coordinates.
-    flow.col(0) = flow.col(0) / K(0, 0);
-    flow.col(1) = flow.col(1) / K(1, 1);
+//    flow.col(0) = flow.col(0) / K(0, 0);
+//    flow.col(1) = flow.col(1) / K(1, 1);
 
     // Construct A matrix and b matrix to solve the linear/angular velocity.
     MatrixXf ones;
@@ -70,15 +72,16 @@ std::tuple<MatrixXf, MatrixXf, MatrixXf> EstimateVelocity::velocityFromFlow(Matr
     int start = clock();
     MatrixXf X(6, 1);
     ColPivHouseholderQR<MatrixXf> dec(A);
-    X.col(0) = dec.solve(b);
+    X.col(0) = dec.solve(b); // X in camera frame, should be converted to the world frame
 
 //    std::cout << (clock() - start) / double(CLOCKS_PER_SEC) << std::endl;
 //    std::cout << X << std::endl;
+//    std::cout << "A: " << A << std::endl <<"B: " << std::endl << b << std::endl << "Vel: " << X << std::endl;
 
     return std::make_tuple(X, A, b);
 }
 
-std::vector<int> EstimateVelocity::RANSAC(int iterations, float threshold, MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position) {
+MatrixXf EstimateVelocity::RANSAC(int iterations, float threshold, MatrixXf flow, MatrixXf K, MatrixXf depth, MatrixXf position) {
     /**
      * INPUT:
      * - iterations: number of iterations the RANSAC will take
@@ -94,9 +97,12 @@ std::vector<int> EstimateVelocity::RANSAC(int iterations, float threshold, Matri
     std::vector<int> result;
 
     MatrixXf X, A, b; // X is not used
-    std::tie(X, A, b) = velocityFromFlow(flow, K, depth, position);
+    std::tie(X, A, b) = velocityFromFlow(flow, K, depth, position); //********ERROR
+
 
     // RANSAC
+    srand((unsigned) time(NULL));
+
     for(int i = 0; i < iterations; i ++){
         // randomly select points
         std::set<int> rand_idx = generateRandomNum(num_rand_pts, num_pts);
@@ -135,17 +141,35 @@ std::vector<int> EstimateVelocity::RANSAC(int iterations, float threshold, Matri
                 result_tmp.push_back(j);
             }
         }
+
         if(count > max_inlier){
             max_inlier = count;
             result = result_tmp;
             if(max_inlier > (num_pts * 0.95)){
+//                std::cout << "Iteration: "<< i + 1 << " inliers number: " << count << std::endl;
                 break;
             };
         }
-        std::cout << "Iteration: "<< i << " inliers number: " << count << std::endl;
+//        std::cout << "Iteration: "<< i + 1 << " inliers number: " << count << std::endl;
+    }
+//    std::cout << " max inliers number: " << max_inlier << std::endl;
+
+    // estimate velocity
+    MatrixXf final_postition, final_flow, final_depth;
+    final_postition = MatrixXf::Zero(max_inlier, 2);
+    final_flow = MatrixXf::Zero(max_inlier, 2);
+    final_depth = MatrixXf::Zero(max_inlier, 1);
+
+    for(int k = 0; k < max_inlier; k ++){
+        final_postition.row(k) = position.row(result[k]);
+        final_flow.row(k) = flow.row(result[k]);
+        final_depth.row(k) = depth.row(result[k]);
     }
 
-    return result;
+    MatrixXf vel_final, A_final, b_final;
+    std::tie(vel_final, A_final, b_final) = velocityFromFlow(final_flow, K, final_depth, final_postition);
+
+    return vel_final;
 
 }
 
@@ -155,7 +179,7 @@ std::set<int> EstimateVelocity::generateRandomNum(int num_pts, int range){
      * range: range of random number (upper bound)
      */
     std::set<int> output;
-    srand((unsigned) time(NULL));
+//    srand((unsigned) time(NULL));
     while(output.size() < num_pts){
         int number = rand() % range;
         output.insert(number);
