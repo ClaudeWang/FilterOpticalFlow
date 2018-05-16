@@ -15,6 +15,9 @@
 #include <memory>
 #include <ros/ros.h>
 #include <unordered_map>
+#include <eigen_conversions/eigen_msg.h>
+#include <tf_conversions/tf_eigen.h>
+#include <nav_msgs/Odometry.h>
 #include "estimate_velocity/undistorter.h"
 #include "msckf_vio/CameraMeasurement.h"
 
@@ -24,6 +27,7 @@ namespace filter_optical_flow{
 	Undistorter left_undistorter_, right_undistorter_;
 	ros::NodeHandle nh_;
 	ros::Subscriber feature_pos_sub_;
+	ros::Publisher vel_from_optical_flow_pub_;
 
 	std::unordered_map<int, int> id_ind_map_;
 	float fx_, fy_, px_, py_, baseline_;

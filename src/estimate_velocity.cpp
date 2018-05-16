@@ -14,6 +14,7 @@ namespace filter_optical_flow{
         right_undistorter_.caminfo(&fx_, &fy_, &px_, &py_, &baseline_);
         start_flag_ = 0;
         feature_pos_sub_ = nh_.subscribe<msckf_vio::CameraMeasurement>("feature_pos", 10, &EstimateVelocity::positionCallback, this);
+        vel_from_optical_flow_pub_ = nh_.advertise<nav_msgs::Odometry>("vel_from_optical_flow", 10);
         ROS_INFO("EstimateVelocity initialized");
     }
 
@@ -60,7 +61,19 @@ namespace filter_optical_flow{
             // std::cout<<"positions"<<positions<<std::endl;
 
             ///////////////////////TO DO///////////////////////
-            velocityFromFlow(flows, depths, positions);
+            Eigen::MatrixXf vel, A, b;
+            std::tie(vel, A, b) = velocityFromFlow(flows, depths, positions);
+            std::cout<<vel<<std::endl;
+            Eigen::Vector3d linear_velocity, angular_velocity;
+            linear_velocity << vel(0), vel(1), vel(2);
+            angular_velocity << vel(3), vel(4), vel(5);
+
+            nav_msgs::Odometry odom;
+            odom.header.stamp = ros::Time::now();
+            tf::vectorEigenToMsg(linear_velocity, odom.twist.twist.linear);
+            tf::vectorEigenToMsg(angular_velocity, odom.twist.twist.angular);
+            
+            vel_from_optical_flow_pub_.publish(odom);
         }
     }
 

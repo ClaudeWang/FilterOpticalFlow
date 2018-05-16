@@ -2,13 +2,13 @@
 
 <launch>
 	<arg name="launch-prefix" default=""/>
-	<arg name="n_events_per_window" default="20000"/>
+	<arg name="n_events_per_window" default="15000"/>
 	<arg name="tracker_window_size" default="31"/>
 	<arg name="stereo_window_size" default="24"/>
 	<arg name="min_disparity" default="0"/>
 	<arg name="disparity_range" default="32"/>
 	<arg name="do_parallel" default="true"/>
-	<arg name="do_plot" default="false"/>
+	<arg name="do_plot" default="false"/>/home/yibo/Documents/research/bagfiles/indoor_flying_calib/camchain-imucam-indoor_flying.yaml
 	<arg name="realtime" default="false"/>
 
 	<!--arg name="bag_folder_path" default="/mnt/data/mvsec/merge_bags/final/sep5/"/-->
