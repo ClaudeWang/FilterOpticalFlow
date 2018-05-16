@@ -11,24 +11,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6fcb9b3b-ea28-4605-ad88-1541e53e6ec9" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EstimateVelocity.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/estimate_velocity.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EstimateVelocity.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/estimate_velocity/estimate_velocity.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/CXX.includecache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/DependInfo.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/DependInfo.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/build.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/build.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/cmake_clean.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/cmake_clean.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/depend.internal" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/depend.internal" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/depend.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/depend.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/link.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/link.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FilterOpticalFlow.dir/main.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/FilterOpticalFlow.cbp" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/FilterOpticalFlow.cbp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-    </list>
+    <list default="true" id="6fcb9b3b-ea28-4605-ad88-1541e53e6ec9" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/CMakeFiles/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -50,10 +33,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="730">
+            <state relative-caret-position="3150">
               <caret line="75" column="65" lean-forward="true" selection-start-line="75" selection-start-column="65" selection-end-line="75" selection-end-column="65" />
             </state>
           </provider>
@@ -68,7 +51,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="estimate_velocity.h" pinned="false" current-in-tab="true">
+      <file leaf-file-name="estimate_velocity.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/estimate_velocity/estimate_velocity.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1092">
@@ -216,25 +199,25 @@
       <workItem from="1525372069492" duration="854000" />
       <workItem from="1525639233547" duration="1216000" />
       <workItem from="1525889842232" duration="25906000" />
-      <workItem from="1526504039113" duration="568000" />
+      <workItem from="1526504039113" duration="876000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="53584000" />
+    <option name="totallyTimeSpent" value="53892000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-14" width="3840" height="2174" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15625" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15625" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Messages" order="7" sideWeight="0.47916666" weight="0.37100995" />
       <window_info anchor="bottom" id="CMake" order="11" sideWeight="0.4997396" weight="0.32967034" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5184896" side_tool="true" visible="true" weight="0.30664572" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49947917" weight="0.32967034" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.4997396" weight="0.32967034" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.48151043" visible="true" weight="0.30664572" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.48151043" visible="true" weight="0.30664572" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -601,13 +584,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="730">
-          <caret line="75" column="65" lean-forward="true" selection-start-line="75" selection-start-column="65" selection-end-line="75" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/estimate_velocity.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="871">
@@ -622,6 +598,13 @@
           <folding>
             <element signature="e#131#160#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3150">
+          <caret line="75" column="65" lean-forward="true" selection-start-line="75" selection-start-column="65" selection-end-line="75" selection-end-column="65" />
         </state>
       </provider>
     </entry>
