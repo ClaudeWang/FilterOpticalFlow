@@ -6,11 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/haumin/Documents/EventCamera/FilterOpticalFlow/EstimateVelocity.cpp
-EstimateVelocity.h
-/home/haumin/Documents/EventCamera/FilterOpticalFlow/EstimateVelocity.h
-
-/home/haumin/Documents/EventCamera/FilterOpticalFlow/EstimateVelocity.h
+.././include/estimate_velocity/estimate_velocity.h
 eigen3/Eigen/Dense
 -
 tuple
@@ -34,9 +30,13 @@ fstream
 iomanip
 -
 
-/home/haumin/Documents/EventCamera/FilterOpticalFlow/main.cpp
+/home/haumin/Documents/EventCamera/FilterOpticalFlow/src/estimate_velocity.cpp
+include/estimate_velocity/estimate_velocity.h
+/home/haumin/Documents/EventCamera/FilterOpticalFlow/src/include/estimate_velocity/estimate_velocity.h
+
+/home/haumin/Documents/EventCamera/FilterOpticalFlow/src/main.cpp
 iostream
 -
-EstimateVelocity.h
-/home/haumin/Documents/EventCamera/FilterOpticalFlow/EstimateVelocity.h
+include/estimate_velocity/estimate_velocity.h
+/home/haumin/Documents/EventCamera/FilterOpticalFlow/src/include/estimate_velocity/estimate_velocity.h
 

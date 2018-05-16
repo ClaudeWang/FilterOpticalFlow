@@ -6,6 +6,6 @@ set(CMAKE_CXX_STANDARD 11)
 include_directories(.)
 
 add_executable(FilterOpticalFlow
-        EstimateVelocity.cpp
-        EstimateVelocity.h
-        main.cpp)
+        src/estimate_velocity.cpp
+        include/estimate_velocity/estimate_velocity.h
+        src/main.cpp)

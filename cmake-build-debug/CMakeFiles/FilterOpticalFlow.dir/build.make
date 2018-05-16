@@ -57,64 +57,64 @@ include CMakeFiles/FilterOpticalFlow.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/FilterOpticalFlow.dir/flags.make
 
-CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o: CMakeFiles/FilterOpticalFlow.dir/flags.make
-CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o: ../EstimateVelocity.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/haumin/Documents/EventCamera/FilterOpticalFlow/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o -c /home/haumin/Documents/EventCamera/FilterOpticalFlow/EstimateVelocity.cpp
+CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o: CMakeFiles/FilterOpticalFlow.dir/flags.make
+CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o: ../src/estimate_velocity.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/haumin/Documents/EventCamera/FilterOpticalFlow/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o -c /home/haumin/Documents/EventCamera/FilterOpticalFlow/src/estimate_velocity.cpp
 
-CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/haumin/Documents/EventCamera/FilterOpticalFlow/EstimateVelocity.cpp > CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.i
+CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/haumin/Documents/EventCamera/FilterOpticalFlow/src/estimate_velocity.cpp > CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.i
 
-CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/haumin/Documents/EventCamera/FilterOpticalFlow/EstimateVelocity.cpp -o CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.s
+CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/haumin/Documents/EventCamera/FilterOpticalFlow/src/estimate_velocity.cpp -o CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.s
 
-CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o.requires:
+CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o.requires:
 
-.PHONY : CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o.requires
+.PHONY : CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o.requires
 
-CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o.provides: CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o.requires
-	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o.provides.build
-.PHONY : CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o.provides
+CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o.provides: CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o.requires
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o.provides.build
+.PHONY : CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o.provides
 
-CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o.provides.build: CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o
+CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o.provides.build: CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o
 
 
-CMakeFiles/FilterOpticalFlow.dir/main.cpp.o: CMakeFiles/FilterOpticalFlow.dir/flags.make
-CMakeFiles/FilterOpticalFlow.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/haumin/Documents/EventCamera/FilterOpticalFlow/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/FilterOpticalFlow.dir/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/FilterOpticalFlow.dir/main.cpp.o -c /home/haumin/Documents/EventCamera/FilterOpticalFlow/main.cpp
+CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o: CMakeFiles/FilterOpticalFlow.dir/flags.make
+CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o: ../src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/haumin/Documents/EventCamera/FilterOpticalFlow/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o -c /home/haumin/Documents/EventCamera/FilterOpticalFlow/src/main.cpp
 
-CMakeFiles/FilterOpticalFlow.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/FilterOpticalFlow.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/haumin/Documents/EventCamera/FilterOpticalFlow/main.cpp > CMakeFiles/FilterOpticalFlow.dir/main.cpp.i
+CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/haumin/Documents/EventCamera/FilterOpticalFlow/src/main.cpp > CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.i
 
-CMakeFiles/FilterOpticalFlow.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/FilterOpticalFlow.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/haumin/Documents/EventCamera/FilterOpticalFlow/main.cpp -o CMakeFiles/FilterOpticalFlow.dir/main.cpp.s
+CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/haumin/Documents/EventCamera/FilterOpticalFlow/src/main.cpp -o CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.s
 
-CMakeFiles/FilterOpticalFlow.dir/main.cpp.o.requires:
+CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o.requires:
 
-.PHONY : CMakeFiles/FilterOpticalFlow.dir/main.cpp.o.requires
+.PHONY : CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o.requires
 
-CMakeFiles/FilterOpticalFlow.dir/main.cpp.o.provides: CMakeFiles/FilterOpticalFlow.dir/main.cpp.o.requires
-	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/main.cpp.o.provides.build
-.PHONY : CMakeFiles/FilterOpticalFlow.dir/main.cpp.o.provides
+CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o.provides: CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o.requires
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o.provides.build
+.PHONY : CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o.provides
 
-CMakeFiles/FilterOpticalFlow.dir/main.cpp.o.provides.build: CMakeFiles/FilterOpticalFlow.dir/main.cpp.o
+CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o.provides.build: CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o
 
 
 # Object files for target FilterOpticalFlow
 FilterOpticalFlow_OBJECTS = \
-"CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o" \
-"CMakeFiles/FilterOpticalFlow.dir/main.cpp.o"
+"CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o" \
+"CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o"
 
 # External object files for target FilterOpticalFlow
 FilterOpticalFlow_EXTERNAL_OBJECTS =
 
-FilterOpticalFlow: CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o
-FilterOpticalFlow: CMakeFiles/FilterOpticalFlow.dir/main.cpp.o
+FilterOpticalFlow: CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o
+FilterOpticalFlow: CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o
 FilterOpticalFlow: CMakeFiles/FilterOpticalFlow.dir/build.make
 FilterOpticalFlow: CMakeFiles/FilterOpticalFlow.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/haumin/Documents/EventCamera/FilterOpticalFlow/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable FilterOpticalFlow"
@@ -125,8 +125,8 @@ CMakeFiles/FilterOpticalFlow.dir/build: FilterOpticalFlow
 
 .PHONY : CMakeFiles/FilterOpticalFlow.dir/build
 
-CMakeFiles/FilterOpticalFlow.dir/requires: CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o.requires
-CMakeFiles/FilterOpticalFlow.dir/requires: CMakeFiles/FilterOpticalFlow.dir/main.cpp.o.requires
+CMakeFiles/FilterOpticalFlow.dir/requires: CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o.requires
+CMakeFiles/FilterOpticalFlow.dir/requires: CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o.requires
 
 .PHONY : CMakeFiles/FilterOpticalFlow.dir/requires
 

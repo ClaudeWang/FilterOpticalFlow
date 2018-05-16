@@ -123,59 +123,59 @@ FilterOpticalFlow/fast:
 	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/build
 .PHONY : FilterOpticalFlow/fast
 
-EstimateVelocity.o: EstimateVelocity.cpp.o
+src/estimate_velocity.o: src/estimate_velocity.cpp.o
 
-.PHONY : EstimateVelocity.o
-
-# target to build an object file
-EstimateVelocity.cpp.o:
-	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.o
-.PHONY : EstimateVelocity.cpp.o
-
-EstimateVelocity.i: EstimateVelocity.cpp.i
-
-.PHONY : EstimateVelocity.i
-
-# target to preprocess a source file
-EstimateVelocity.cpp.i:
-	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.i
-.PHONY : EstimateVelocity.cpp.i
-
-EstimateVelocity.s: EstimateVelocity.cpp.s
-
-.PHONY : EstimateVelocity.s
-
-# target to generate assembly for a file
-EstimateVelocity.cpp.s:
-	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/EstimateVelocity.cpp.s
-.PHONY : EstimateVelocity.cpp.s
-
-main.o: main.cpp.o
-
-.PHONY : main.o
+.PHONY : src/estimate_velocity.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/main.cpp.o
-.PHONY : main.cpp.o
+src/estimate_velocity.cpp.o:
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.o
+.PHONY : src/estimate_velocity.cpp.o
 
-main.i: main.cpp.i
+src/estimate_velocity.i: src/estimate_velocity.cpp.i
 
-.PHONY : main.i
+.PHONY : src/estimate_velocity.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/main.cpp.i
-.PHONY : main.cpp.i
+src/estimate_velocity.cpp.i:
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.i
+.PHONY : src/estimate_velocity.cpp.i
 
-main.s: main.cpp.s
+src/estimate_velocity.s: src/estimate_velocity.cpp.s
 
-.PHONY : main.s
+.PHONY : src/estimate_velocity.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/main.cpp.s
-.PHONY : main.cpp.s
+src/estimate_velocity.cpp.s:
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/estimate_velocity.cpp.s
+.PHONY : src/estimate_velocity.cpp.s
+
+src/main.o: src/main.cpp.o
+
+.PHONY : src/main.o
+
+# target to build an object file
+src/main.cpp.o:
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.o
+.PHONY : src/main.cpp.o
+
+src/main.i: src/main.cpp.i
+
+.PHONY : src/main.i
+
+# target to preprocess a source file
+src/main.cpp.i:
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.i
+.PHONY : src/main.cpp.i
+
+src/main.s: src/main.cpp.s
+
+.PHONY : src/main.s
+
+# target to generate assembly for a file
+src/main.cpp.s:
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/main.cpp.s
+.PHONY : src/main.cpp.s
 
 # Help Target
 help:
@@ -186,12 +186,12 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... FilterOpticalFlow"
-	@echo "... EstimateVelocity.o"
-	@echo "... EstimateVelocity.i"
-	@echo "... EstimateVelocity.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... src/estimate_velocity.o"
+	@echo "... src/estimate_velocity.i"
+	@echo "... src/estimate_velocity.s"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
 .PHONY : help
 
 
