@@ -22,12 +22,25 @@ function [state, test] = ESKF(sensor, varargin)
 %                  @(sensor) estimate_vel(sensor, your personal input arguments);
 %   vel - 3x1 velocity of the quadrotor in world frame
 %   omg - 3x1 angular velocity of the quadrotor
-persistent p q v b_a b_w err_p err_q err_v err_ba err_bw t_prev t_interval
+persistent p q v b_a b_w err_p err_theta err_v err_ba err_bw t_prev t_interval Q sigma W R_noise
 
 if isempty(p)
     
     % intialization.
     
+    % noise
+    % process noise.
+    Q = 0.1 * eye(12);
+    
+    % measurement noise
+    W = zeros([12, 1]);
+    
+    % R noise.
+    R_noise = 0.01 * eye(3);
+    
+    % error state covariance
+    sigma = eye(15);
+       
     % nominal
     p = [0; 0; 0];
     v = [0; 0; 0];
@@ -36,7 +49,7 @@ if isempty(p)
     
     % error state
     err_p = [0; 0; 0];
-    err_q = [0; 0; 0; 0];
+    err_theta = [0; 0; 0];
     err_v = [0; 0; 0];
     err_ba = [0; 0; 0];
     err_bw = [0; 0; 0];
@@ -50,6 +63,7 @@ if isempty(p)
     acc = sensor.acc;
     acc_unit = acc / norm(acc);
 
+    % This is used to formulate the first frame.
     % R_b_w = [r1, r2, r3].
     % align acc_unit and actual_g, the projection of z-axis of world is the
     % the third column of R_b_w.
@@ -76,10 +90,6 @@ end
 
 [vel, omg, R_vision] = estimate_vel_research(sensor);
 
-% if size(vel, 1) == 0
-%     return;
-% end
-
 % nominal state
 t_interval = sensor.t - t_prev;
 t_prev = sensor.t;
@@ -97,23 +107,86 @@ omega = sensor.omg - b_w;
 w_norm = norm(omega);
 angle = t_interval * w_norm;
 axis = omega / w_norm;
-% 
+
 delta_q = zeros(4, 1);
 delta_q(1) = cos(angle / 2);
 delta_q(2: 4) = sin(angle / 2) * axis;
-% 
+
 q = quatmult(delta_q, q);
 R = quat2rotm(q');
 
-% q = rotm2quat(R)';
-
-
 % update velocity.
-% sensor.acc;
-% quat2rotm(q') * (sensor.acc - b_a);
-% v = v + (R * (sensor.acc - b_a) + [0; 0; 9.8]) * t_interval;
+v = v + (R * (sensor.acc - b_a) + [0; 0; 9.8]) * t_interval;
 
-state = [p; q; v; b_a; b_w];
+% update position.
+p = p + v * t_interval;
+
+%% Error state update mean and covaraince.
+
+% construct A matrix
+A = zeros(15);
+A(1:3, 4:6) = eye(3);
+A(4:6, 7:9) = -R * skew(sensor.acc - b_a - R' * [0; 0; 9.8]);
+A(4:6, 10:12) = -R;
+A(7:9, 7:9) = -skew(omega - b_w);
+A(7:9, 13:15) = -eye(3);
+
+% construct U matrix
+U = zeros([15, 12]);
+U(4:6, 1:3) = -eye(3);
+U(7:9, 4:6) = -eye(3);
+U(10:12, 7:9) = eye(3);
+U(13:15, 10:12) = eye(3);
+
+% predict
+old_err_state = [err_p; err_theta; err_v; err_ba; err_bw];
+new_err_state =  old_err_state + t_interval * A * old_err_state;
+
+
+sigma = A * sigma * sigma' + U * Q * U';
+
+%% Error state measurement model.
+% measurement update, only use linear velocity as measurement. 3 * 15
+C = [zeros(3, 6), eye(3), zeros(3, 6)];
+
+% kalman gain
+K_p = (sigma * C') / (C * sigma * C' + R_noise);
+
+% update the mean of error state
+new_err_state = K_p * (vel - v);
+
+% update the covariance of the error state
+sigma = (eye(15) - K_p * C) * sigma * (eye(15) - K_p * C)' ...
+    + K_p * R_noise * K_p';
+
+% update the state mean, give the final prediction.
+p_final = p + new_err_state(1:3);
+v_final = v + new_err_state(4:6);
+
+dq = 0.5 * new_err_state(7:9);
+
+if norm(dq) > 1
+    dq = [1; dq] /  sqrt(1 + dq' * dq);
+else
+    dq = [sqrt(1 - dq' * dq); dq];
+end
+
+q_final = quatmult(dq, q);
+b_a_final = b_a + new_err_state(10:12);
+b_w_final = b_w + new_err_state(13:15);
+
+% reset error state.
+G = blkdiag(eye(6), eye(3) + skew(0.5 * err_theta), eye(6));
+
+err_p = [0; 0; 0];
+err_theta = [0; 0; 0];
+err_v = [0; 0; 0];
+err_ba = [0; 0; 0];
+err_bw = [0; 0; 0];
+
+sigma = G * sigma * G';
+
+state = [p_final; q_final; v_final; b_a_final; b_w_final];
 test = R;
 end
 
@@ -138,6 +211,13 @@ quat = [w1*w2-x1*x2-y1*y2-z1*z2;
 
 end
 
+function T = skew(t)
+
+T = [0, -t(1), t(2);
+    t(1), 0, -t(3);
+    -t(2), t(3), 0];
+
+end
 
 
 
