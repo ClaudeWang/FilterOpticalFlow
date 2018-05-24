@@ -30,16 +30,17 @@ if isempty(p)
     
     % noise
     % process noise.
-    Q = 0.1 * eye(12);
+    Q = diag([0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1])/5;
     
     % measurement noise
     W = zeros([12, 1]);
     
     % R noise.
-    R_noise = 0.01 * eye(3);
+    R_noise = 0 * eye(3);
     
     % error state covariance
-    sigma = eye(15);
+    sigma = diag([0.01 0.01 0.01 0.01 0.01 0.01 1e-3 1e-3 1e-3 ...
+            0.025 0.025 0.005 0.001 0.001 0.001]);
        
     % nominal
     p = [0; 0; 0];
@@ -81,10 +82,11 @@ if isempty(p)
     R = R_b_w';
 %     q = rotm2quat(R)';
     
-    state = [p; q; b_a; b_w];
+    state = [p; v; q; b_a; b_w];
     
-    test = eul2rotm(sensor.rpy', 'XYZ');
-    q = rotm2quat(test)';
+%     test = eul2rotm(sensor.rpy', 'XYZ');
+    test = state;
+    q = rotm2quat(eul2rotm(sensor.rpy', 'XYZ'))';
     return;
 end
 
@@ -115,8 +117,12 @@ delta_q(2: 4) = sin(angle / 2) * axis;
 q = quatmult(delta_q, q);
 R = quat2rotm(q');
 
+% R = eul2rotm(sensor.rpy', 'XYZ');
+% test = R;
+
+
 % update velocity.
-v = v + (R * (sensor.acc - b_a) + [0; 0; 9.8]) * t_interval;
+v = v + (R * (sensor.acc - b_a) + [0; 0; -9.8]) * t_interval;
 
 % update position.
 p = p + v * t_interval;
@@ -126,28 +132,28 @@ p = p + v * t_interval;
 % construct A matrix
 A = zeros(15);
 A(1:3, 4:6) = eye(3);
-A(4:6, 7:9) = -R * skew(sensor.acc - b_a - R' * [0; 0; 9.8]);
+A(4:6, 7:9) = -R * skew(sensor.acc - b_a);
 A(4:6, 10:12) = -R;
 A(7:9, 7:9) = -skew(omega - b_w);
 A(7:9, 13:15) = -eye(3);
 
+A = A * t_interval + eye(15);
+
 % construct U matrix
 U = zeros([15, 12]);
-U(4:6, 1:3) = -eye(3);
-U(7:9, 4:6) = -eye(3);
-U(10:12, 7:9) = eye(3);
-U(13:15, 10:12) = eye(3);
+
+U(4:6, 1:3) = -R * t_interval^2;
+U(7:9, 4:6) = -R * t_interval^2;
+U(10: 15, 7:12) = eye(6) * t_interval;
 
 % predict
-old_err_state = [err_p; err_theta; err_v; err_ba; err_bw];
-new_err_state =  old_err_state + t_interval * A * old_err_state;
-
-
-sigma = A * sigma * sigma' + U * Q * U';
+old_err_state = [err_p; err_v; err_theta; err_ba; err_bw];
+new_err_state =  A * old_err_state;
+sigma = A * sigma * A' + U * Q * U';
 
 %% Error state measurement model.
 % measurement update, only use linear velocity as measurement. 3 * 15
-C = [zeros(3, 6), eye(3), zeros(3, 6)];
+C = [zeros(3, 3), eye(3), zeros(3, 9)];
 
 % kalman gain
 K_p = (sigma * C') / (C * sigma * C' + R_noise);
@@ -176,7 +182,8 @@ b_a_final = b_a + new_err_state(10:12);
 b_w_final = b_w + new_err_state(13:15);
 
 % reset error state.
-G = blkdiag(eye(6), eye(3) + skew(0.5 * err_theta), eye(6));
+% G = blkdiag(eye(6), eye(3) + skew(0.5 * err_theta), eye(6));
+G = eye(15);
 
 err_p = [0; 0; 0];
 err_theta = [0; 0; 0];
@@ -187,7 +194,9 @@ err_bw = [0; 0; 0];
 sigma = G * sigma * G';
 
 state = [p_final; q_final; v_final; b_a_final; b_w_final];
-test = R;
+% state = [p; q; v; b_a; b_w];
+test = [p; q; v; b_a; b_w];
+
 end
 
 
