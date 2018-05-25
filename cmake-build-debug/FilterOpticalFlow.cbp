@@ -86,7 +86,13 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/haumin/Documents/EventCamera/FilterOpticalFlow/include/eskf/eskf.h">
+			<Option target="FilterOpticalFlow"/>
+		</Unit>
 		<Unit filename="/home/haumin/Documents/EventCamera/FilterOpticalFlow/include/estimate_velocity/estimate_velocity.h">
+			<Option target="FilterOpticalFlow"/>
+		</Unit>
+		<Unit filename="/home/haumin/Documents/EventCamera/FilterOpticalFlow/src/eskf.cpp">
 			<Option target="FilterOpticalFlow"/>
 		</Unit>
 		<Unit filename="/home/haumin/Documents/EventCamera/FilterOpticalFlow/src/estimate_velocity.cpp">

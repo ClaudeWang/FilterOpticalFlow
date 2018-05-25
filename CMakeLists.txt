@@ -8,4 +8,4 @@ include_directories(.)
 add_executable(FilterOpticalFlow
         src/estimate_velocity.cpp
         include/estimate_velocity/estimate_velocity.h
-        src/main.cpp)
+        src/main.cpp include/eskf/eskf.h src/eskf.cpp)
