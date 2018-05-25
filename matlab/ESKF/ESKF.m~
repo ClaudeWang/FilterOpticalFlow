@@ -30,16 +30,14 @@ if isempty(p)
     
     % noise
     % process noise.
-    Q = 0.1 * eye(12);
+    Q = diag([0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1])/5;
     
-    % measurement noise
-    W = zeros([12, 1]);
-    
-    % R noise.
-    R_noise = 0.01 * eye(3);
+    % measurement noise.
+    R_noise = 1e-10 * eye(3);
     
     % error state covariance
-    sigma = eye(15);
+    sigma = diag([0.01 0.01 0.01 0.01 0.01 0.01 1e-3 1e-3 1e-3 ...
+            0.025 0.025 0.005 0.001 0.001 0.001]);
        
     % nominal
     p = [0; 0; 0];
@@ -81,10 +79,11 @@ if isempty(p)
     R = R_b_w';
 %     q = rotm2quat(R)';
     
-    state = [p; q; v; b_a; b_w];
+    state = [p; v; q; b_a; b_w];
     
-    test = eul2rotm(sensor.rpy', 'XYZ');
-    q = rotm2quat(test)';
+%     test = eul2rotm(sensor.rpy', 'XYZ');
+    test = state;
+    q = rotm2quat(eul2rotm(sensor.rpy', 'XYZ'))';
     return;
 end
 
@@ -112,9 +111,12 @@ delta_q = zeros(4, 1);
 delta_q(1) = cos(angle / 2);
 delta_q(2: 4) = sin(angle / 2) * axis;
 
-q = quatmult(delta_q, q);
+q = quatmult(q, delta_q);
 R = quat2rotm(q');
-test = R;
+
+% R = eul2rotm(sensor.rpy', 'XYZ');
+% test = R;
+
 
 % update velocity.
 v = v + (R * (sensor.acc - b_a) + [0; 0; -9.8]) * t_interval;
@@ -129,8 +131,7 @@ A = zeros(15);
 A(1:3, 4:6) = eye(3);
 A(4:6, 7:9) = -R * skew(sensor.acc - b_a);
 A(4:6, 10:12) = -R;
-A(7:9, 7:9) = -skew(omega - b_w);
-A(7:9, 13:15) = -eye(3);
+A(7:9, 13:15) = -R;
 
 A = A * t_interval + eye(15);
 
@@ -162,9 +163,9 @@ sigma = (eye(15) - K_p * C) * sigma * (eye(15) - K_p * C)' ...
 
 % update the state mean, give the final prediction.
 p_final = p + new_err_state(1:3);
-v_final = v + new_err_state(7:9);
+v_final = v + new_err_state(4:6);
 
-dq = 0.5 * new_err_state(4:9);
+dq = 0.5 * new_err_state(7:9);
 
 if norm(dq) > 1
     dq = [1; dq] /  sqrt(1 + dq' * dq);
@@ -177,7 +178,8 @@ b_a_final = b_a + new_err_state(10:12);
 b_w_final = b_w + new_err_state(13:15);
 
 % reset error state.
-G = blkdiag(eye(6), eye(3) + skew(0.5 * err_theta), eye(6));
+% G = blkdiag(eye(6), eye(3) + skew(0.5 * err_theta), eye(6));
+G = eye(15);
 
 err_p = [0; 0; 0];
 err_theta = [0; 0; 0];
@@ -187,9 +189,11 @@ err_bw = [0; 0; 0];
 
 sigma = G * sigma * G';
 
+sigma
+
 state = [p_final; q_final; v_final; b_a_final; b_w_final];
 % state = [p; q; v; b_a; b_w];
-test = R;
+test = [p; q; v; b_a; b_w];
 
 end
 

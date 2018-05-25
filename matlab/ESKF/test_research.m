@@ -29,16 +29,16 @@ til = 864;
 for i = 1:til
 
 %     [v, omg, flow, points, depth] = estimate_vel_research(data.data(i));
-     [state, test] = ESKF(data.data(i));
+    [state, test] = ESKF(data.data(i));
 %     all_x(i) = state(1);
 %     all_y(i) = state(2);
 %     all_z(i) = state(3);
     
     ts(i) = data.data(i).t;
 
-%     all_vx(i) = state(8);
-%     all_vy(i) = state(9);
-%     all_vz(i) = state(10);
+    all_vx(i) = state(8);
+    all_vy(i) = state(9);
+    all_vz(i) = state(10);
 %     
 %     all_vx_nom(i) = test(8);
 %     all_vy_nom(i) = test(9);
@@ -72,25 +72,25 @@ end
 
 % fclose(fileID);
 
-figure(2);
+% figure(2);
 
-% subplot(3, 1, 1);
-% plot(ts, all_vx);
-% hold on;
-% plot(time, all_vicon(7, :));
-% % plot(all_vx_nom);
-% 
-% subplot(3, 1, 2);
-% plot(ts, all_vy);
-% hold on;
-% plot(time, all_vicon(8, :));
-% % plot(all_vy_nom);
-% 
-% subplot(3, 1, 3);
-% plot(ts, all_vz);
-% hold on;
-% plot(time, all_vicon(9, :));
-% % plot(all_vz_nom);
+subplot(3, 1, 1);
+plot(ts, all_vx);
+hold on;
+plot(time, all_vicon(7, :));
+% plot(all_vx_nom);
+
+subplot(3, 1, 2);
+plot(ts, all_vy);
+hold on;
+plot(time, all_vicon(8, :));
+% plot(all_vy_nom);
+
+subplot(3, 1, 3);
+plot(ts, all_vz);
+hold on;
+plot(time, all_vicon(9, :));
+% plot(all_vz_nom);
 
 
 % 
@@ -104,21 +104,21 @@ figure(2);
 % plot(all_o(:, 3));
 
 
-figure(3);
-subplot(3, 1, 1);
-plot(all_rpy(1:til, 1));
-hold on;
-plot(all_rpy_estimated(1:til, 1));
-
-subplot(3, 1, 2);
-plot(all_rpy(1:til, 2));
-hold on;
-plot(all_rpy_estimated(1:til, 2));
-
-subplot(3, 1, 3);
-plot(all_rpy(1:til, 3));
-hold on;
-plot(all_rpy_estimated(1:til, 3));
+% figure(3);
+% subplot(3, 1, 1);
+% plot(all_rpy(1:til, 1));
+% hold on;
+% plot(all_rpy_estimated(1:til, 1));
+% 
+% subplot(3, 1, 2);
+% plot(all_rpy(1:til, 2));
+% hold on;
+% plot(all_rpy_estimated(1:til, 2));
+% 
+% subplot(3, 1, 3);
+% plot(all_rpy(1:til, 3));
+% hold on;
+% plot(all_rpy_estimated(1:til, 3));
 
 
 % figure(1)

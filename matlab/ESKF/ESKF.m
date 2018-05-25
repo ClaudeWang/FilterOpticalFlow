@@ -32,11 +32,8 @@ if isempty(p)
     % process noise.
     Q = diag([0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1])/5;
     
-    % measurement noise
-    W = zeros([12, 1]);
-    
-    % R noise.
-    R_noise = 0 * eye(3);
+    % measurement noise.
+    R_noise = 1e-10 * eye(3);
     
     % error state covariance
     sigma = diag([0.01 0.01 0.01 0.01 0.01 0.01 1e-3 1e-3 1e-3 ...
@@ -114,7 +111,7 @@ delta_q = zeros(4, 1);
 delta_q(1) = cos(angle / 2);
 delta_q(2: 4) = sin(angle / 2) * axis;
 
-q = quatmult(delta_q, q);
+q = quatmult(q, delta_q);
 R = quat2rotm(q');
 
 % R = eul2rotm(sensor.rpy', 'XYZ');
@@ -134,8 +131,7 @@ A = zeros(15);
 A(1:3, 4:6) = eye(3);
 A(4:6, 7:9) = -R * skew(sensor.acc - b_a);
 A(4:6, 10:12) = -R;
-A(7:9, 7:9) = -skew(omega - b_w);
-A(7:9, 13:15) = -eye(3);
+A(7:9, 13:15) = -R;
 
 A = A * t_interval + eye(15);
 
@@ -193,12 +189,13 @@ err_bw = [0; 0; 0];
 
 sigma = G * sigma * G';
 
+sigma(4:6)
+
 state = [p_final; q_final; v_final; b_a_final; b_w_final];
 % state = [p; q; v; b_a; b_w];
 test = [p; q; v; b_a; b_w];
 
 end
-
 
 function quat = quatmult(q, r)
 
