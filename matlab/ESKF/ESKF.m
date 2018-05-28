@@ -117,12 +117,8 @@ R = quat2rotm(q');
 % R = eul2rotm(sensor.rpy', 'XYZ');
 % test = R;
 
-
 % update velocity.
 v = v + (R * (sensor.acc - b_a) + [0; 0; -9.8]) * t_interval;
-
-% update position.
-p = p + v * t_interval;
 
 %% Error state update mean and covaraince.
 
@@ -149,13 +145,28 @@ sigma = A * sigma * A' + U * Q * U';
 
 %% Error state measurement model.
 % measurement update, only use linear velocity as measurement. 3 * 15
-C = [zeros(3, 3), eye(3), zeros(3, 9)];
+% C = [zeros(3, 3), eye(3), zeros(3, 9)];
 
+% H matrix.
+rotation_q = rotm2quat([sqrt(2)/2, -sqrt(2)/2, 0; -sqrt(2)/2, -sqrt(2)/2, 0; 0, 0, -1] * quat2rotm(q'))';
+v_quat = [0; v];
+v_rotated = left_quat(quatmult(rotation_q, v_quat)) * diag([1, -1, -1, -1]) + right_quat(quatmult(v_quat, diag([1, -1, -1, -1]) * rotation_q));
+
+H1 = [zeros(3), v_rotated(2:4, :), zeros(3), zeros(3), zeros(3)];
+H2 = [eye(3), zeros(3, 12);
+      zeros(3), eye(3), zeros(3, 9);
+      zeros(4, 6), 0.5 * [-q(2), -q(3), -q(4); q(1), q(4), -q(3); -q(4), q(1), q(2); q(3), -q(2), q(1)], zeros(4, 6);
+      zeros(3, 9), eye(3), zeros(3, 3);
+      zeros(3, 12), eye(3)];
+C = H1 * H2;
+   
 % kalman gain
 K_p = (sigma * C') / (C * sigma * C' + R_noise);
 
 % update the mean of error state
-new_err_state = K_p * (vel - v);
+R_c_I = [sqrt(2)/2, -sqrt(2)/2, 0; -sqrt(2)/2, -sqrt(2)/2, 0; 0, 0, -1];
+vel_in_world = R_c_I * quat2rotm(q') * v - R_c_I * skew(-R_c_I' * [-0.04; 0; -0.03]) * omega;
+new_err_state = K_p * (vel - vel_in_world);
 
 % update the covariance of the error state
 sigma = (eye(15) - K_p * C) * sigma * (eye(15) - K_p * C)' ...
@@ -189,7 +200,6 @@ err_bw = [0; 0; 0];
 
 sigma = G * sigma * G';
 
-sigma(4:6)
 
 state = [p_final; q_final; v_final; b_a_final; b_w_final];
 % state = [p; q; v; b_a; b_w];
@@ -225,6 +235,29 @@ T = [0, -t(1), t(2);
 
 end
 
+function Q = left_quat(q)
+q0 = q(1);
+q1 = q(2);
+q2 = q(3);
+q3 = q(4);
+
+Q = [q0, -q1, -q2, -q3;
+    q1, q0, -q3, q2;
+    q2, q3, q0, -q1;
+    q3, -q2, q1, q0];
+end
+
+function Q = right_quat(q)
+q0 = q(1);
+q1 = q(2);
+q2 = q(3);
+q3 = q(4);
+
+Q = [q0, -q1, -q2, -q3;
+    q1, q0, q3, -q2;
+    q2, -q3, q0, -q1;
+    q3, q2, -q1, q0;];
+end
 
 
 

@@ -117,12 +117,8 @@ R = quat2rotm(q');
 % R = eul2rotm(sensor.rpy', 'XYZ');
 % test = R;
 
-
 % update velocity.
 v = v + (R * (sensor.acc - b_a) + [0; 0; -9.8]) * t_interval;
-
-% update position.
-p = p + v * t_interval;
 
 %% Error state update mean and covaraince.
 
@@ -151,6 +147,15 @@ sigma = A * sigma * A' + U * Q * U';
 % measurement update, only use linear velocity as measurement. 3 * 15
 C = [zeros(3, 3), eye(3), zeros(3, 9)];
 
+% H matrix.
+rotation_q = [sqrt(2)/2, -sqrt(2)/2, 0; -sqrt(2)/2, -sqrt(2)/2, 0; 0, 0, -1] * quat2rotm(q);
+v_quat = [0; v];
+v_rotated = left_quat(quatmult(rotation_q, v_quat)) * diag([1, -1, -1, -1]) * right_quat(quatmult(p, diag([1, -1, -1, -1]) * rotation_q));
+
+H1 = [zeros(4, 3), v_rotated, zeros(4, 3), zeros(4, 3), zeros(4, 3)];
+H2 = [eye(3), zeros(3, 12);
+      zeros(3), eye(3), zeros(3, 9);
+      zeros(4, 6), 0.5 * [-q(1)]]
 % kalman gain
 K_p = (sigma * C') / (C * sigma * C' + R_noise);
 
@@ -189,14 +194,13 @@ err_bw = [0; 0; 0];
 
 sigma = G * sigma * G';
 
-sigma
+sigma(4:6)
 
 state = [p_final; q_final; v_final; b_a_final; b_w_final];
 % state = [p; q; v; b_a; b_w];
 test = [p; q; v; b_a; b_w];
 
 end
-
 
 function quat = quatmult(q, r)
 
@@ -226,6 +230,21 @@ T = [0, -t(1), t(2);
 
 end
 
+function Q = left_quat(q)
+
+Q = [q0, -q1, -q2, -q3;
+    q1, q0, -q3, q2;
+    q2, q3, q0, -q1;
+    q3; -q2, q1, q0;];
+end
+
+function Q = right_quat(q)
+
+Q = [q0, -q1, -q2, -q3;
+    q1, q0, q3, -q2;
+    q2, -q3, q0, -q1;
+    q3; q2, -q1, q0;];
+end
 
 
 

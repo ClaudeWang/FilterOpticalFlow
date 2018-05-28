@@ -263,8 +263,8 @@ end
 vel = best_result(1: 3);
 omg = best_result(4: 6);
 
-omg = R_c_w' * omg;
-vel = R_c_w' * vel;
+% omg = R_c_w' * omg;
+% vel = R_c_w' * vel;
 if ~isempty(last_vel)
     vel = 0.5 * vel + 0.5 * last_vel;
 end
