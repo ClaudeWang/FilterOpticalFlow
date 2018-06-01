@@ -1,4 +1,4 @@
-function [vel, omg, R_test] = estimate_vel_research(sensor, varargin)
+function [vel, omg, R_test, flow, points, depth] = estimate_vel_research(sensor, varargin)
 %ESTIMATE_VEL 6DOF velocity estimator
 %   sensor - struct stored in provided dataset, fields include
 %          - is_ready: logical, indicates whether sensor data is valid

@@ -33,7 +33,7 @@ if isempty(p)
     Q = diag([0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1])/5;
     
     % measurement noise.
-    R_noise = 1e-10 * eye(3);
+    R_noise = 0.1 * eye(3);
     
     % error state covariance
     sigma = diag([0.01 0.01 0.01 0.01 0.01 0.01 1e-3 1e-3 1e-3 ...
@@ -87,7 +87,7 @@ if isempty(p)
     return;
 end
 
-[vel, omg, R_vision] = estimate_vel_research(sensor);
+[vel, omg, R_vision, ~, ~, ~] = estimate_vel_research(sensor);
 
 % nominal state
 t_interval = sensor.t - t_prev;
@@ -150,7 +150,7 @@ sigma = A * sigma * A' + U * Q * U';
 % H matrix.
 rotation_q = rotm2quat([sqrt(2)/2, -sqrt(2)/2, 0; -sqrt(2)/2, -sqrt(2)/2, 0; 0, 0, -1] * quat2rotm(q'))';
 v_quat = [0; v];
-v_rotated = left_quat(quatmult(rotation_q, v_quat)) * diag([1, -1, -1, -1]) + right_quat(quatmult(v_quat, diag([1, -1, -1, -1]) * rotation_q));
+v_rotated = left_quat(quatmult(rotation_q, v_quat)) * diag([1, -1, -1, -1]) + right_quat(quatmult(v_quat, (diag([1, -1, -1, -1]) * rotation_q)));
 
 H1 = [zeros(3), v_rotated(2:4, :), zeros(3), zeros(3), zeros(3)];
 H2 = [eye(3), zeros(3, 12);
@@ -165,8 +165,8 @@ K_p = (sigma * C') / (C * sigma * C' + R_noise);
 
 % update the mean of error state
 R_c_I = [sqrt(2)/2, -sqrt(2)/2, 0; -sqrt(2)/2, -sqrt(2)/2, 0; 0, 0, -1];
-vel_in_world = R_c_I * quat2rotm(q') * v - R_c_I * skew(-R_c_I' * [-0.04; 0; -0.03]) * omega;
-new_err_state = K_p * (vel - vel_in_world);
+vel_in_cam = R_c_I * quat2rotm(q') * v - R_c_I * skew(-R_c_I' * [-0.04; 0; -0.03]) * omega;
+new_err_state = K_p * (vel - vel_in_cam);
 
 % update the covariance of the error state
 sigma = (eye(15) - K_p * C) * sigma * (eye(15) - K_p * C)' ...
