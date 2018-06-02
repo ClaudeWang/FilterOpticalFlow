@@ -87,7 +87,7 @@ if isempty(p)
     return;
 end
 
-[vel, omg, R_vision, ~, ~, ~] = estimate_vel_research(sensor);
+[vel, ~, ~, ~, points, ~] = estimate_vel_research(sensor);
 
 % nominal state
 t_interval = sensor.t - t_prev;
@@ -144,6 +144,12 @@ new_err_state =  A * old_err_state;
 sigma = A * sigma * A' + U * Q * U';
 
 %% Error state measurement model.
+
+if size(points, 1) == 0
+    state = [p; q; v; b_a; b_w];
+    test = [p; q; v; b_a; b_w];
+    return;
+end
 % measurement update, only use linear velocity as measurement. 3 * 15
 % C = [zeros(3, 3), eye(3), zeros(3, 9)];
 
@@ -152,7 +158,14 @@ rotation_q = rotm2quat([sqrt(2)/2, -sqrt(2)/2, 0; -sqrt(2)/2, -sqrt(2)/2, 0; 0, 
 v_quat = [0; v];
 v_rotated = left_quat(quatmult(rotation_q, v_quat)) * diag([1, -1, -1, -1]) + right_quat(quatmult(v_quat, (diag([1, -1, -1, -1]) * rotation_q)));
 
-H1 = [zeros(3), v_rotated(2:4, :), zeros(3), zeros(3), zeros(3)];
+% with respect to v.
+R_2_1 = [sqrt(2)/2, -sqrt(2)/2, 0; -sqrt(2)/2, -sqrt(2)/2, 0; 0, 0, -1];
+R_1_0 = quat2rotm(q')';
+
+% with respect to w_b.
+j_w_b = R_2_1 * skew(-R_2_1' * [-0.04; 0; -0.03]);
+
+H1 = [zeros(3), R_2_1 * R_1_0, v_rotated(2:4, :), zeros(3), j_w_b];
 H2 = [eye(3), zeros(3, 12);
       zeros(3), eye(3), zeros(3, 9);
       zeros(4, 6), 0.5 * [-q(2), -q(3), -q(4); q(1), q(4), -q(3); -q(4), q(1), q(2); q(3), -q(2), q(1)], zeros(4, 6);
@@ -199,7 +212,6 @@ err_ba = [0; 0; 0];
 err_bw = [0; 0; 0];
 
 sigma = G * sigma * G';
-
 
 state = [p_final; q_final; v_final; b_a_final; b_w_final];
 % state = [p; q; v; b_a; b_w];
