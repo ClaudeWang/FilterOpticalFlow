@@ -34,7 +34,7 @@ for i = 1:til
         % ignore the frame
         'no flow'
         fprintf(fileID, '%d:\n', 0);
-        fprintf(fileID, '%f %f %f', data.data(i).acc);
+        fprintf(fileID, '%f %f %f ', data.data(i).acc);
         fprintf(fileID, '%f %f %f', data.data(i).omg);
         fprintf(fileID, '\n');
         continue
@@ -49,7 +49,7 @@ for i = 1:til
         fprintf(fileID, '\n');
     end
     
-    fprintf(fileID, '%f %f %f', data.data(i).acc);
+    fprintf(fileID, '%f %f %f ', data.data(i).acc);
     fprintf(fileID, '%f %f %f', data.data(i).omg);
     fprintf(fileID, '\n');
 
