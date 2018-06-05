@@ -103,12 +103,12 @@ void testRansac(){
     std::cout << "Time: " << (clock() - start) / double(CLOCKS_PER_SEC) / num_frames << std::endl;
 }
 
-void testESKF(){
+void testESKF() {
 
-    std::ifstream dataFile("/home/haumin/Documents/EventCamera/FilterOpticalFlow/data_with_imu.txt");
+    std::ifstream dataFile("/home/haumin/Documents/EventCamera/FilterOpticalFlow/matlab/ESKF/data_with_imu.txt");
 //    dataFile.open("sample_data.txt");
 
-    if(!dataFile){
+    if (!dataFile) {
         std::cout << "Unable to open the data file!";
         exit(1);
     }
@@ -122,14 +122,14 @@ void testESKF(){
     std::vector<MatrixXf> all_imu;
     std::vector<bool> all_ready;
 
-    while(std::getline(dataFile, line)){
-        if(first_line){ // find the number of frame line
+    while (std::getline(dataFile, line)) {
+        if (first_line) { // find the number of frame line
             num_frame = std::stoi(line);
             first_line = false;
             continue;
         }
         std::size_t frame_signal = line.find(":");
-        if(frame_signal != std::string::npos){ // find the number of points in certain frame line
+        if (frame_signal != std::string::npos) { // find the number of points in certain frame line
             ++count;
             num_pts = std::stoi(line.substr(0, frame_signal));
             continue;
@@ -137,7 +137,7 @@ void testESKF(){
         // enter the section read data
         int line_count = 0;
 
-        if(num_pts > 0) {
+        if (num_pts > 0) {
             MatrixXf frame_data(num_pts, 5);
 
             while (line_count < num_pts) {
@@ -160,11 +160,14 @@ void testESKF(){
             all_frames.push_back(frame_data);
             all_ready.push_back(true);
         } else {
-
             MatrixXf frame_data(1, 5); // if the # of feature points is 0, save a 1 row zero matrix
             frame_data << 0, 0, 0, 0, 0;
             all_frames.push_back(frame_data);
             all_ready.push_back(false);
+        }
+
+        if (num_pts != 0) {
+            std::getline(dataFile, line);
         }
 
         std::cout << "Parsing the IMU data......" << std::endl;
@@ -173,7 +176,7 @@ void testESKF(){
         int pts_count = 0;
         std::size_t pts_signal = line.substr(start_pos).find(" ");
 
-        while(pts_count < 6){ // ??
+        while (pts_count < 6) { // ??
             std::string d = line.substr(start_pos, pts_signal - start_pos);
             imu_data(0, pts_count) = std::stof(d);
             start_pos = int(pts_signal) + 1;
@@ -183,12 +186,34 @@ void testESKF(){
 
 //        all_frames.push_back(frame_data);
         all_imu.push_back(imu_data);
+        std::cout << imu_data << std::endl;
     }
 
 
     // run velocity estimation on all data.
     int num_frames = all_frames.size();
     int num_imu = all_imu.size();
-    assert(num_frames == num_imu);
+    int num_ready = all_ready.size();
+    assert(num_frames == num_imu && num_frames == num_ready);
 
+    ESKF eskf;
+    EstimateVelocity a;
+    MatrixXf K(3, 3);
+    K << 311.0520, 0, 201.8724,
+            0, 311.3885, 113.6210,
+            0, 0, 1;
+    int i = 1;
+    std::vector<float> vel_x;
+    for (i; i < 2; i++) {
+        MatrixXf one_frame = all_frames[i];
+        int num_points = one_frame.rows();
+        MatrixXf flow = one_frame.block(0, 0, num_points, 2);
+        MatrixXf position = one_frame.block(0, 2, num_points, 2);
+        MatrixXf depth = one_frame.col(4);
+
+
+        eskf.filter(0.0149, all_imu[i], flow, K, depth, position, all_ready[i]);
+
+    }
+    return;
 }
