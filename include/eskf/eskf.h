@@ -5,6 +5,9 @@
 #ifndef FILTEROPTICALFLOW_ESKF_H
 #define FILTEROPTICALFLOW_ESKF_H
 
+#include "include/estimate_velocity/estimate_velocity.h"
+#include <eigen3/Eigen/Dense>
+#include <tuple>
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
@@ -14,8 +17,6 @@
 #include <math.h>
 #include <fstream>
 #include <iomanip>
-#include <eigen3/Eigen/src/Core/Matrix.h>
-#include "include/estimate_velocity/estimate_velocity.h"
 
 using namespace Eigen;
 
