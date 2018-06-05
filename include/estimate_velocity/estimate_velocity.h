@@ -20,7 +20,6 @@
 using namespace Eigen;
 
 class EstimateVelocity {
-
 public:
 
     EstimateVelocity() {

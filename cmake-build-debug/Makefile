@@ -123,6 +123,33 @@ FilterOpticalFlow/fast:
 	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/build
 .PHONY : FilterOpticalFlow/fast
 
+src/eskf.o: src/eskf.cpp.o
+
+.PHONY : src/eskf.o
+
+# target to build an object file
+src/eskf.cpp.o:
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/eskf.cpp.o
+.PHONY : src/eskf.cpp.o
+
+src/eskf.i: src/eskf.cpp.i
+
+.PHONY : src/eskf.i
+
+# target to preprocess a source file
+src/eskf.cpp.i:
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/eskf.cpp.i
+.PHONY : src/eskf.cpp.i
+
+src/eskf.s: src/eskf.cpp.s
+
+.PHONY : src/eskf.s
+
+# target to generate assembly for a file
+src/eskf.cpp.s:
+	$(MAKE) -f CMakeFiles/FilterOpticalFlow.dir/build.make CMakeFiles/FilterOpticalFlow.dir/src/eskf.cpp.s
+.PHONY : src/eskf.cpp.s
+
 src/estimate_velocity.o: src/estimate_velocity.cpp.o
 
 .PHONY : src/estimate_velocity.o
@@ -186,6 +213,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... FilterOpticalFlow"
+	@echo "... src/eskf.o"
+	@echo "... src/eskf.i"
+	@echo "... src/eskf.s"
 	@echo "... src/estimate_velocity.o"
 	@echo "... src/estimate_velocity.i"
 	@echo "... src/estimate_velocity.s"
