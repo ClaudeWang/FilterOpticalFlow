@@ -4,6 +4,7 @@
 
 #include "estimate_velocity/estimate_velocity.h"
 
+using namespace Eigen;
 namespace filter_optical_flow{
 
     EstimateVelocity::EstimateVelocity(ros::NodeHandle nh, ros::NodeHandle nh_priv):
@@ -13,8 +14,11 @@ namespace filter_optical_flow{
     {
         right_undistorter_.caminfo(&fx_, &fy_, &px_, &py_, &baseline_);
         start_flag_ = 0;
+        start_gt_flag_ = 0;
         feature_pos_sub_ = nh_.subscribe<msckf_vio::CameraMeasurement>("feature_pos", 10, &EstimateVelocity::positionCallback, this);
+        gt_pose_sub_ = nh.subscribe<geometry_msgs::PoseStamped>("pose", 10, &EstimateVelocity::poseCallback, this);
         vel_from_optical_flow_pub_ = nh_.advertise<nav_msgs::Odometry>("vel_from_optical_flow", 10);
+        nh_.getParam("do_debug", do_debug_);
         ROS_INFO("EstimateVelocity initialized");
     }
 
@@ -62,22 +66,71 @@ namespace filter_optical_flow{
 
             ///////////////////////TO DO///////////////////////
             Eigen::MatrixXf vel, A, b;
-            std::tie(vel, A, b) = velocityFromFlow(flows, depths, positions);
-            std::cout<<vel<<std::endl;
-            Eigen::Vector3d linear_velocity, angular_velocity;
+            int iterations = 100;
+            float threshold = 0.01;
+            vel = RANSAC(iterations, 0.01, flows, depths, positions); 
+            //std::cout<<vel<<std::endl;
+            Eigen::Vector3f linear_velocity, angular_velocity;
             linear_velocity << vel(0), vel(1), vel(2);
             angular_velocity << vel(3), vel(4), vel(5);
 
-            nav_msgs::Odometry odom;
-            odom.header.stamp = ros::Time::now();
-            tf::vectorEigenToMsg(linear_velocity, odom.twist.twist.linear);
-            tf::vectorEigenToMsg(angular_velocity, odom.twist.twist.angular);
+            // std::cout<<linear_velocity<<std::endl;
+            // std::cout<<lin_ang_vel_gt_.head(3)<<std::endl;
+            if(do_debug_){
+                float diff_lin_vel = (linear_velocity - lin_ang_vel_gt_.head(3)).norm();
+                avg_lin_diff_vel_ = diff_lin_vel/(lin_vel_count_+1) 
+                                              + avg_lin_diff_vel_*lin_vel_count_/(lin_vel_count_+1); 
+                lin_vel_count_++;
+                ROS_INFO("avg error of eskf:%f", avg_lin_diff_vel_);
+            }
+
+            // nav_msgs::Odometry odom;
+            // odom.header.stamp = ros::Time::now();
+            // tf::vectorEigenToMsg(linear_velocity, odom.twist.twist.linear);
+            // tf::vectorEigenToMsg(angular_velocity, odom.twist.twist.angular);
             
-            vel_from_optical_flow_pub_.publish(odom);
+            // vel_from_optical_flow_pub_.publish(odom);
         }
     }
 
-    std::tuple<Eigen::MatrixXf, Eigen::MatrixXf, Eigen::MatrixXf> EstimateVelocity::velocityFromFlow(Eigen::MatrixXf flow, Eigen::MatrixXf depth, Eigen::MatrixXf position) {
+    void EstimateVelocity::poseCallback(const geometry_msgs::PoseStampedConstPtr& pose_msg)
+    {
+        if(start_gt_flag_ == 0){
+            prev_gt_pose_ = *pose_msg;    
+            start_gt_flag_ = 1;
+        } else{
+            lin_ang_vel_gt_ = estVelFromPose(prev_gt_pose_,
+                                             *pose_msg);
+            prev_gt_pose_ = *pose_msg;
+        }
+
+    }
+
+    // Uses numerical differentiation to esimate velocity from a set of poses (usually from GT pose).
+    Eigen::VectorXf EstimateVelocity::estVelFromPose(const geometry_msgs::PoseStamped& prev_pose_tf,
+                                                   const geometry_msgs::PoseStamped& curr_pose_tf) 
+    {
+        Eigen::VectorXf lin_ang_vel = Eigen::VectorXf::Zero(6);
+
+        Eigen::Isometry3d prev_pose, curr_pose;
+        tf::poseMsgToEigen(prev_pose_tf.pose, prev_pose);
+        tf::poseMsgToEigen(curr_pose_tf.pose, curr_pose);
+
+        Eigen::Isometry3f pose_prev_curr = (prev_pose.inverse() * curr_pose).cast<float>();
+        float dt = (curr_pose_tf.header.stamp - prev_pose_tf.header.stamp).toSec();
+
+        lin_ang_vel.head(3) += pose_prev_curr.translation() / dt;
+        Eigen::Matrix3f R = pose_prev_curr.linear();
+        Eigen::Matrix3f omega_hat = R.log() / dt;
+
+        lin_ang_vel(3) += omega_hat(2, 1);
+        lin_ang_vel(4) += omega_hat(0, 2);
+        lin_ang_vel(5) += omega_hat(1, 0);
+       
+        return lin_ang_vel;
+    }
+
+    std::tuple<MatrixXf, MatrixXf, MatrixXf> EstimateVelocity::velocityFromFlow(MatrixXf flow, MatrixXf depth, MatrixXf position) {
         /**
          * INPUT:
          * - flow: Nx2 matrix for optical flow
@@ -92,22 +145,28 @@ namespace filter_optical_flow{
         // convert coordinates into ideal coordinates.
         int num_pts = position.rows();
 
-        Eigen::MatrixXf h_pts(3, num_pts);
-        Eigen::MatrixXf new_pos(num_pts, 2);
+        MatrixXf h_pts(3, num_pts);
+        MatrixXf new_pos(num_pts, 2);
         h_pts.block(0, 0, 2, num_pts) = position.transpose().block(0, 0, 2, num_pts);
-        h_pts.block(2, 0, 1, num_pts) = Eigen::MatrixXf::Ones(1, num_pts).block(0, 0, 1, num_pts);
+        h_pts.block(2, 0, 1, num_pts) = MatrixXf::Ones(1, num_pts).block(0, 0, 1, num_pts);
+    //    std::cout << "Col 1: " << h_pts.row(0) << std::endl <<"Col 2: " << std::endl << h_pts.row(1)<< std::endl;
+
         h_pts = h_pts.array().rowwise() / h_pts.row(2).array();
 
         // extract the points in ideal coordinates.
         new_pos = h_pts.transpose().block(0, 0, num_pts, 2);
 
+        // convert the flow into ideal coordinates.
+    //    flow.col(0) = flow.col(0) / K(0, 0);
+    //    flow.col(1) = flow.col(1) / K(1, 1);
+
         // Construct A matrix and b matrix to solve the linear/angular velocity.
-        Eigen::MatrixXf ones;
-        Eigen::MatrixXf zeros;
-        ones = Eigen::MatrixXf::Ones(num_pts, 1);
-        zeros = Eigen::MatrixXf::Zero(num_pts, 1);
-        Eigen::MatrixXf A_upper(num_pts, 6);
-        Eigen::MatrixXf A_lower(num_pts, 6);
+        MatrixXf ones;
+        MatrixXf zeros;
+        ones = MatrixXf::Ones(num_pts, 1);
+        zeros = MatrixXf::Zero(num_pts, 1);
+        MatrixXf A_upper(num_pts, 6);
+        MatrixXf A_lower(num_pts, 6);
 
         // upper matrix
         A_upper.col(0) = -1 * (ones.array().colwise() / depth.col(0).array());
@@ -125,28 +184,29 @@ namespace filter_optical_flow{
         A_lower.col(4) = -1 * (new_pos.col(0).array().colwise() * new_pos.col(1).array());
         A_lower.col(5) = -1 * new_pos.col(0);
 
-        Eigen::MatrixXf A(2 * num_pts, 6);
+        MatrixXf A(2 * num_pts, 6);
         A.block(0, 0, num_pts, 6) = A_upper.block(0, 0, num_pts, 6);
         A.block(num_pts, 0, num_pts, 6) = A_lower.block(0, 0, num_pts, 6);
 
         // b matrix
-        Eigen::MatrixXf b(2 * num_pts, 1);
+        MatrixXf b(2 * num_pts, 1);
         b.block(0, 0, num_pts, 1) = flow.col(0).block(0, 0, num_pts, 1);
         b.block(num_pts, 0, num_pts, 1) = flow.col(1).block(0, 0, num_pts, 1);
 
         // solve
         int start = clock();
-        Eigen::MatrixXf X(6, 1);
-        Eigen::ColPivHouseholderQR<Eigen::MatrixXf> dec(A);
-        X.col(0) = dec.solve(b);
+        MatrixXf X(6, 1);
+        ColPivHouseholderQR<MatrixXf> dec(A);
+        X.col(0) = dec.solve(b); // X in camera frame, should be converted to the world frame
 
     //    std::cout << (clock() - start) / double(CLOCKS_PER_SEC) << std::endl;
     //    std::cout << X << std::endl;
+    //    std::cout << "A: " << A << std::endl <<"B: " << std::endl << b << std::endl << "Vel: " << X << std::endl;
 
         return std::make_tuple(X, A, b);
     }
 
-    std::vector<int> EstimateVelocity::ransac(int iterations, float threshold, Eigen::MatrixXf flow, Eigen::MatrixXf depth, Eigen::MatrixXf position) {
+    MatrixXf EstimateVelocity::RANSAC(int iterations, float threshold, MatrixXf flow, MatrixXf depth, MatrixXf position) {
         /**
          * INPUT:
          * - iterations: number of iterations the RANSAC will take
@@ -161,19 +221,22 @@ namespace filter_optical_flow{
         int max_inlier = -1;
         std::vector<int> result;
 
-        Eigen::MatrixXf X, A, b; // X is not used
-        std::tie(X, A, b) = velocityFromFlow(flow, depth, position);
+        MatrixXf X, A, b; // X is not used
+        std::tie(X, A, b) = velocityFromFlow(flow, depth, position); //********ERROR
+
 
         // RANSAC
+        srand((unsigned) time(NULL));
+
         for(int i = 0; i < iterations; i ++){
             // randomly select points
             std::set<int> rand_idx = generateRandomNum(num_rand_pts, num_pts);
             std::set<int>::iterator iterator;
 
-            Eigen::MatrixXf select_postition, select_flow, select_depth;
-            select_postition = Eigen::MatrixXf::Zero(num_rand_pts, 2);
-            select_flow = Eigen::MatrixXf::Zero(num_rand_pts, 2);
-            select_depth = Eigen::MatrixXf::Zero(num_rand_pts, 1);
+            MatrixXf select_postition, select_flow, select_depth;
+            select_postition = MatrixXf::Zero(num_rand_pts, 2);
+            select_flow = MatrixXf::Zero(num_rand_pts, 2);
+            select_depth = MatrixXf::Zero(num_rand_pts, 1);
 
             int c = 0;
             for(iterator = rand_idx.begin(); iterator != rand_idx.end() && c < num_rand_pts; iterator++){
@@ -184,13 +247,13 @@ namespace filter_optical_flow{
                 c ++;
             }
 
-            Eigen::MatrixXf vel, A_rand, b_rand;
+            MatrixXf vel, A_rand, b_rand;
             std::tie(vel, A_rand, b_rand) = velocityFromFlow(select_flow, select_depth, select_postition);
 
-            Eigen::MatrixXf diff = A * vel - b;
-            Eigen::MatrixXf x_diff, y_diff;
-            x_diff = Eigen::MatrixXf::Zero(num_pts, 1);
-            y_diff = Eigen::MatrixXf::Zero(num_pts, 1);
+            MatrixXf diff = A * vel - b;
+            MatrixXf x_diff, y_diff;
+            x_diff = MatrixXf::Zero(num_pts, 1);
+            y_diff = MatrixXf::Zero(num_pts, 1);
             x_diff.block(0, 0, num_pts, 1) = diff.block(0, 0, num_pts, 1);
             y_diff.block(0, 0, num_pts, 1) = diff.block(num_pts, 0, num_pts, 1);
 
@@ -203,17 +266,35 @@ namespace filter_optical_flow{
                     result_tmp.push_back(j);
                 }
             }
+
             if(count > max_inlier){
                 max_inlier = count;
                 result = result_tmp;
                 if(max_inlier > (num_pts * 0.95)){
+    //                std::cout << "Iteration: "<< i + 1 << " inliers number: " << count << std::endl;
                     break;
                 };
             }
-            std::cout << "Iteration: "<< i << " inliers number: " << count << std::endl;
+    //        std::cout << "Iteration: "<< i + 1 << " inliers number: " << count << std::endl;
+        }
+    //    std::cout << " max inliers number: " << max_inlier << std::endl;
+
+        // estimate velocity
+        MatrixXf final_postition, final_flow, final_depth;
+        final_postition = MatrixXf::Zero(max_inlier, 2);
+        final_flow = MatrixXf::Zero(max_inlier, 2);
+        final_depth = MatrixXf::Zero(max_inlier, 1);
+
+        for(int k = 0; k < max_inlier; k ++){
+            final_postition.row(k) = position.row(result[k]);
+            final_flow.row(k) = flow.row(result[k]);
+            final_depth.row(k) = depth.row(result[k]);
         }
 
-        return result;
+        MatrixXf vel_final, A_final, b_final;
+        std::tie(vel_final, A_final, b_final) = velocityFromFlow(final_flow, final_depth, final_postition);
+
+        return vel_final;
 
     }
 
@@ -223,12 +304,11 @@ namespace filter_optical_flow{
          * range: range of random number (upper bound)
          */
         std::set<int> output;
-        srand((unsigned) time(NULL));
+    //    srand((unsigned) time(NULL));
         while(output.size() < num_pts){
             int number = rand() % range;
             output.insert(number);
         }
         return output;
     }
-
 }

@@ -8,7 +8,8 @@
 	<arg name="min_disparity" default="0"/>
 	<arg name="disparity_range" default="32"/>
 	<arg name="do_parallel" default="true"/>
-	<arg name="do_plot" default="false"/>/home/yibo/Documents/research/bagfiles/indoor_flying_calib/camchain-imucam-indoor_flying.yaml
+	<arg name="do_plot" default="false"/>
+	<arg name="do_debug" default="true"/>
 	<arg name="realtime" default="false"/>
 
 	<!--arg name="bag_folder_path" default="/mnt/data/mvsec/merge_bags/final/sep5/"/-->
@@ -20,7 +21,9 @@
 
 	<node name="filter_optical_flow" pkg="filter_optical_flow" type="filter_optical_flow" output="screen" required="true" launch-prefix="$(arg launch-prefix)">
 	<rosparam command="load" file="$(arg calibration_file)"/>
+	<param name="do_debug" type="bool" value="$(arg do_debug)"/>
 	<remap from="feature_pos" to="/image_processor/features"/>
+	<remap from="pose" to="/davis/left/odometry"/>
 	</node>
 
 	<node pkg="event_based_stereo" type="event_based_stereo_node.py" name="stereo_tensorflow" required="true" output="screen">
