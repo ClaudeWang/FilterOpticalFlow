@@ -41,7 +41,7 @@ namespace filter_optical_flow{
                     positions(i, 0) = position_msg->features[i].u0;
                     positions(i, 1) = position_msg->features[i].v0;
                     
-                    float disparity = position_msg->features[i].u1 - position_msg->features[i].u0;
+                    float disparity = position_msg->features[i].u0 - position_msg->features[i].u1;
                     //std::cout<<disparity<<std::endl;
                     float depth = -baseline_/(disparity * fx_);
                     depths(i) = depth;
@@ -68,14 +68,15 @@ namespace filter_optical_flow{
             Eigen::MatrixXf vel, A, b;
             int iterations = 100;
             float threshold = 0.01;
-            vel = RANSAC(iterations, 0.01, flows, depths, positions); 
+            std::tie(vel, A, b) = velocityFromFlow(flows, depths, positions);
+            //vel = RANSAC(iterations, 0.3, flows, depths, positions); 
             //std::cout<<vel<<std::endl;
             Eigen::Vector3f linear_velocity, angular_velocity;
             linear_velocity << vel(0), vel(1), vel(2);
             angular_velocity << vel(3), vel(4), vel(5);
 
-            // std::cout<<linear_velocity<<std::endl;
-            // std::cout<<lin_ang_vel_gt_.head(3)<<std::endl;
+            std::cout<<linear_velocity<<std::endl;
+            std::cout<<lin_ang_vel_gt_.head(3)<<std::endl;
             if(do_debug_){
                 float diff_lin_vel = (linear_velocity - lin_ang_vel_gt_.head(3)).norm();
                 avg_lin_diff_vel_ = diff_lin_vel/(lin_vel_count_+1) 
@@ -143,16 +144,50 @@ namespace filter_optical_flow{
          * - b: 2N x 1 matrix
          */
         // convert coordinates into ideal coordinates.
-        int num_pts = position.rows();
+        
+        //MatrixXf mask = (depth>0).select(MatrixXf::Ones(depth.size()),MatrixXf::Zero(depth.size()));
+        //int valid_size= static_cast<int>(mask.sum());
+        //std::cout<<"depth "<<depth<<std::endl;
+        int valid_size = 0;
+        for(int i=0; i<depth.rows(); i++){
+            if(depth(i)>10e-5 && depth(i)<15 &&
+                !std::isinf(position(i,0)) && !std::isinf(position(i,1)) &&
+                !std::isnan(position(i,0)) && !std::isnan(position(i,1)) &&
+                position(i,0) < 10e5 && position(i,1) < 10e5 ){
+                valid_size ++;
+            }
+        }
 
+        MatrixXf flow_valid = MatrixXf::Zero(valid_size, 2);
+        MatrixXf depth_valid = MatrixXf::Zero(valid_size, 1);
+        MatrixXf position_valid = MatrixXf::Zero(valid_size, 2);
+
+        int ind = 0;
+        for(int i=0; i<flow.rows(); i++){
+            if(depth(i) > 10e-5 && depth(i)<15 &&
+                !std::isinf(position(i,0)) && !std::isinf(position(i,1)) &&
+                !std::isnan(position(i,0)) && !std::isnan(position(i,1)) &&
+                position(i,0) < 10e5 && position(i,1) < 10e5 ){
+                flow_valid(ind, 0) = flow(i, 0);
+                flow_valid(ind, 1) = flow(i, 1);
+                depth_valid(ind) = depth(i);
+                position_valid(ind, 0) = position(i, 0);
+                position_valid(ind, 1) = position(i, 1);
+                ind++;
+            }
+        }
+        std::cout<<"flow_valid "<<flow_valid<<std::endl;
+        std::cout<<"depth_valid "<<depth_valid<<std::endl;
+        std::cout<<"position_valid "<<position_valid<<std::endl;
+        int num_pts = position_valid.rows();
         MatrixXf h_pts(3, num_pts);
         MatrixXf new_pos(num_pts, 2);
-        h_pts.block(0, 0, 2, num_pts) = position.transpose().block(0, 0, 2, num_pts);
+        h_pts.block(0, 0, 2, num_pts) = position_valid.transpose().block(0, 0, 2, num_pts);
         h_pts.block(2, 0, 1, num_pts) = MatrixXf::Ones(1, num_pts).block(0, 0, 1, num_pts);
     //    std::cout << "Col 1: " << h_pts.row(0) << std::endl <<"Col 2: " << std::endl << h_pts.row(1)<< std::endl;
 
         h_pts = h_pts.array().rowwise() / h_pts.row(2).array();
-
+        std::cout<<"h_pts "<<h_pts<<std::endl;
         // extract the points in ideal coordinates.
         new_pos = h_pts.transpose().block(0, 0, num_pts, 2);
 
@@ -169,17 +204,17 @@ namespace filter_optical_flow{
         MatrixXf A_lower(num_pts, 6);
 
         // upper matrix
-        A_upper.col(0) = -1 * (ones.array().colwise() / depth.col(0).array());
+        A_upper.col(0) = -1 * (ones.array().colwise() / depth_valid.col(0).array());
         A_upper.col(1) = zeros.col(0);
-        A_upper.col(2) = new_pos.col(0).array().colwise() / depth.col(0).array();
+        A_upper.col(2) = new_pos.col(0).array().colwise() / depth_valid.col(0).array();
         A_upper.col(3) = new_pos.col(0).array().colwise() * new_pos.col(1).array();
         A_upper.col(4) = -1 * (1 + (new_pos.col(0).array().colwise() * new_pos.col(0).array()));
         A_upper.col(5) = new_pos.col(1);
 
         // lower matrix
         A_lower.col(0) = zeros.col(0);
-        A_lower.col(1) = -1 * (ones.array().colwise() / depth.col(0).array());
-        A_lower.col(2) = new_pos.col(1).array().colwise() / depth.col(0).array();
+        A_lower.col(1) = -1 * (ones.array().colwise() / depth_valid.col(0).array());
+        A_lower.col(2) = new_pos.col(1).array().colwise() / depth_valid.col(0).array();
         A_lower.col(3) = 1 + (new_pos.col(1).array().colwise() * new_pos.col(1).array());
         A_lower.col(4) = -1 * (new_pos.col(0).array().colwise() * new_pos.col(1).array());
         A_lower.col(5) = -1 * new_pos.col(0);
@@ -190,9 +225,11 @@ namespace filter_optical_flow{
 
         // b matrix
         MatrixXf b(2 * num_pts, 1);
-        b.block(0, 0, num_pts, 1) = flow.col(0).block(0, 0, num_pts, 1);
-        b.block(num_pts, 0, num_pts, 1) = flow.col(1).block(0, 0, num_pts, 1);
+        b.block(0, 0, num_pts, 1) = flow_valid.col(0).block(0, 0, num_pts, 1);
+        b.block(num_pts, 0, num_pts, 1) = flow_valid.col(1).block(0, 0, num_pts, 1);
 
+        std::cout<<"A "<<A<<std::endl;
+        std::cout<<"b "<<b<<std::endl;
         // solve
         int start = clock();
         MatrixXf X(6, 1);
